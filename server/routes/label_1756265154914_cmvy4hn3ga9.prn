@@ -1,0 +1,10 @@
+SIZE 60 mm, 60 mm
+GAP 2 mm, 0 mm
+CLS
+TEXT 10,16,"2",0,1,1,"(3)"
+TEXT 10,44,"2",0,1,1,"Wichai Thongdee"
+TEXT 10,72,"2",0,1,1,"Nifedipine 30mg Tube 10 Tablets"
+TEXT 10,100,"2",0,1,1,"Take 1 tablet daily"
+TEXT 10,128,"2",0,1,1,"Quantity: 5"
+TEXT 10,156,"2",0,1,1,"Price: 35.00 THB"
+PRINT 1

@@ -1,0 +1,9 @@
+SIZE 60 mm, 60 mm
+GAP 2 mm, 0 mm
+CLS
+TEXT 10,16,"2",0,1,1,"Somchai Jaidee"
+TEXT 10,44,"2",0,1,1,""
+TEXT 10,72,"2",0,1,1,"Ibuprofen"
+TEXT 10,100,"2",0,1,1,"Take 1 capsule every 8 hours"
+TEXT 10,128,"2",0,1,1,"Quantity: 4"
+PRINT 1

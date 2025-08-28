@@ -1,0 +1,7 @@
+
+SIZE 60 mm, 60 mm
+GAP 2 mm, 0 mm
+CLS
+BITMAP 0,0,48,100,0,label.bmp
+PRINT 1
+  

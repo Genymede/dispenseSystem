@@ -1,0 +1,9 @@
+SIZE 60 mm, 60 mm
+GAP 2 mm, 0 mm
+CLS
+TEXT 10,16,"3",0,1,1,"Somchai Jaidee"
+TEXT 10,46,"3",0,1,1,""
+TEXT 10,76,"3",0,1,1,"Cetirizine"
+TEXT 10,106,"3",0,1,1,"Take 1 tablet daily"
+TEXT 10,136,"3",0,1,1,"Quantity: 4"
+PRINT 1

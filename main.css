@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f4f4;
+  --foreground: #171717;
+  --maincolor: #03644f;
+  --maincolor-light:#028a6e;
+}
+
+.content {
+    margin-top: 1rem;
+    padding: 10px;
+    height: 100%;
+    background: white;
+    border-radius: 8px;
+}
+
+.patient-table {
+    margin-bottom: 1rem;
+}
+
+table {
+    margin-top: 1rem;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: none;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #8b8b8b;
+}
+
+table tbody tr:nth-of-type(even) {
+    background-color: #e3e3e3;
+}
+
+table td {
+    max-width: 10vh; /* กำหนดความกว้างสูงสุดของเซลล์ */
+    overflow: hidden;
+    text-overflow: ellipsis; /* แสดง '...' เมื่อข้อความยาวเกิน */
+    white-space: nowrap; /* ป้องกันการตัดบรรทัด */
+  }

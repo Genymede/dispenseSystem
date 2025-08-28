@@ -1,0 +1,266 @@
+-- Standard SQL version of the database schema
+
+CREATE TABLE adr_registry (
+    adr_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    description TEXT NOT NULL,
+    report_time TIMESTAMP NOT NULL
+);
+
+CREATE TABLE allergy_registry (
+    allr_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    symptoms TEXT NOT NULL
+);
+
+CREATE TABLE error_medication (
+    err_med_id INT PRIMARY KEY AUTO_INCREMENT,
+    error_time TIMESTAMP NOT NULL,
+    patient_id INT NOT NULL,
+    doctor_name INT NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE med_compatibility (
+    med_compat_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_interaction_id INT NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE med_concominant (
+    med_conco_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_interaction_id INT NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE med_cut_off_period (
+    med_period_id INT PRIMARY KEY AUTO_INCREMENT,
+    period_day INT NOT NULL,
+    period_month INT NOT NULL,
+    period_time_h INT NOT NULL,
+    period_time_m INT NOT NULL,
+    sub_warehouse_id INT NOT NULL
+);
+
+CREATE TABLE med_evaluation (
+    me_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE med_interaction (
+    interaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id_1 INT NOT NULL,
+    med_id_2 INT NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE med_order_history (
+    history_id INT PRIMARY KEY AUTO_INCREMENT,
+    record_time TIMESTAMP NOT NULL,
+    med_order_id INT NOT NULL
+);
+
+CREATE TABLE med_order_rights (
+    med_rights_id INT PRIMARY KEY AUTO_INCREMENT,
+    doctor_rights BOOLEAN DEFAULT FALSE,
+    dentist_rights BOOLEAN DEFAULT FALSE,
+    pharmacist_rights BOOLEAN DEFAULT FALSE,
+    psychiatrist_rights BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE med_problem (
+    mp_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE med_table (
+    med_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_name TEXT NOT NULL,
+    med_generic_name TEXT,
+    med_severity TEXT NOT NULL,
+    med_counting_unit TEXT NOT NULL,
+    med_marketing_name TEXT NOT NULL,
+    med_thai_name TEXT,
+    med_cost_price DECIMAL(10,2) NOT NULL,
+    med_selling_price DECIMAL(10,2) NOT NULL,
+    med_medium_price DECIMAL(10,2) NOT NULL,
+    med_dosage_form TEXT,
+    med_medical_category TEXT,
+    med_essential_med_list CHAR(1),
+    med_out_of_stock BOOLEAN DEFAULT FALSE NOT NULL,
+    med_replacement TEXT,
+    med_TMT_GP_name TEXT,
+    med_TMT_TP_name TEXT,
+    med_quantity INT,
+    med_dose_dialogue TEXT,
+    med_TMT_code TEXT,
+    med_TPU_code TEXT,
+    med_pregnancy_category CHAR(1),
+    med_set_new_price BOOLEAN DEFAULT FALSE NOT NULL,
+    med_dispense_IPD_freq INT,
+    med_mfg DATE NOT NULL,
+    med_exp DATE NOT NULL
+);
+
+CREATE TABLE medicine_order (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id_list TEXT NOT NULL,
+    patient_id INT NOT NULL,
+    doctor_name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    order_time TIMESTAMP
+);
+
+CREATE TABLE medicines_TEST (
+    med_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_name TEXT,
+    med_generic_name TEXT,
+    med_scientific_name TEXT,
+    med_description TEXT,
+    med_dosage TEXT,
+    med_side_effect TEXT,
+    med_interaction TEXT,
+    med_price DECIMAL(10,2),
+    med_type TEXT,
+    med_type_th TEXT
+);
+
+CREATE TABLE overdue_med (
+    overdue_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    due_date DATE NOT NULL,
+    dispense_status BOOLEAN DEFAULT FALSE NOT NULL,
+    patient_id INT
+);
+
+CREATE TABLE patient (
+    patient_id INT PRIMARY KEY,
+    national_id TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    gender TEXT NOT NULL,
+    birthdate DATE NOT NULL,
+    age_y INT DEFAULT 0 NOT NULL,
+    age_m INT DEFAULT 0 NOT NULL,
+    age_d INT DEFAULT 0 NOT NULL,
+    blood_group CHAR(1),
+    allergy_id INT,
+    PMH TEXT,
+    phone TEXT,
+    height DECIMAL(5,2),
+    weight DECIMAL(5,2),
+    bmi DECIMAL(5,2),
+    address_id INT
+);
+
+CREATE TABLE patient_address (
+    address_id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    house_number TEXT NOT NULL,
+    village_number INT,
+    sub_district TEXT NOT NULL,
+    district TEXT NOT NULL,
+    province TEXT NOT NULL,
+    road TEXT
+);
+
+CREATE TABLE rad_registry (
+    rad_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    description TEXT NOT NULL,
+    acceptance BOOLEAN DEFAULT FALSE NOT NULL,
+    acceptance_time TIMESTAMP NOT NULL,
+    specimen TEXT,
+    pathogenic TEXT,
+    indications TEXT,
+    indications_criteria TEXT
+);
+
+CREATE TABLE roles (
+    role_id INT PRIMARY KEY DEFAULT 0,
+    role_name TEXT NOT NULL
+);
+
+CREATE TABLE sticker_form (
+    stk_id INT PRIMARY KEY AUTO_INCREMENT,
+    stk_form TEXT
+);
+
+CREATE TABLE sub_warehouse (
+    sw_id INT PRIMARY KEY AUTO_INCREMENT,
+    med_id INT NOT NULL,
+    quantity INT NOT NULL
+);
+
+CREATE TABLE temp_humidity (
+    record_time TIMESTAMP NOT NULL,
+    temperature DECIMAL(5,2) NOT NULL,
+    humidity DECIMAL(5,2) NOT NULL
+);
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    role_id INT NOT NULL
+);
+
+-- Foreign key constraints
+ALTER TABLE adr_registry ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+ALTER TABLE adr_registry ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE allergy_registry ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+ALTER TABLE allergy_registry ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE error_medication ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE med_compatibility ADD FOREIGN KEY (med_interaction_id) REFERENCES med_interaction(interaction_id);
+
+ALTER TABLE med_concominant ADD FOREIGN KEY (med_interaction_id) REFERENCES med_interaction(interaction_id);
+
+ALTER TABLE med_cut_off_period ADD FOREIGN KEY (sub_warehouse_id) REFERENCES sub_warehouse(sw_id);
+
+ALTER TABLE med_evaluation ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+
+ALTER TABLE med_interaction ADD FOREIGN KEY (med_id_1) REFERENCES med_table(med_id);
+ALTER TABLE med_interaction ADD FOREIGN KEY (med_id_2) REFERENCES med_table(med_id);
+
+ALTER TABLE med_order_history ADD FOREIGN KEY (med_order_id) REFERENCES medicine_order(order_id);
+
+ALTER TABLE med_problem ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+
+ALTER TABLE medicine_order ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE overdue_med ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+ALTER TABLE overdue_med ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE patient ADD FOREIGN KEY (address_id) REFERENCES patient_address(address_id);
+ALTER TABLE patient ADD FOREIGN KEY (allergy_id) REFERENCES allergy_registry(allr_id);
+
+ALTER TABLE patient_address ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE rad_registry ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+ALTER TABLE rad_registry ADD FOREIGN KEY (patient_id) REFERENCES patient(patient_id);
+
+ALTER TABLE sub_warehouse ADD FOREIGN KEY (med_id) REFERENCES med_table(med_id);
+
+ALTER TABLE users ADD FOREIGN KEY (role_id) REFERENCES roles(role_id);
+
+-- Indexes
+CREATE INDEX idx_allergy_med_id ON allergy_registry(med_id);
+CREATE INDEX idx_allergy_patient_id ON allergy_registry(patient_id);
+CREATE INDEX idx_med_compat_interaction ON med_compatibility(med_interaction_id);
+CREATE INDEX idx_med_period_warehouse ON med_cut_off_period(sub_warehouse_id);
+CREATE INDEX idx_med_interaction_1 ON med_interaction(med_id_1);
+CREATE INDEX idx_med_interaction_2 ON med_interaction(med_id_2);
+CREATE INDEX idx_order_history ON med_order_history(med_order_id);
+CREATE INDEX idx_patient_address ON patient(address_id);
+CREATE INDEX idx_patient_allergy ON patient(allergy_id);
+CREATE INDEX idx_user_role ON users(role_id);
