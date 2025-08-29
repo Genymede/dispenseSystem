@@ -72,8 +72,26 @@ const server = http.createServer(app);
 
 // ส่ง pool ที่ถูกนำเข้า (imported pool) ไปยัง route handlers
 const medicineRoutes = require("./routes/medicine/medicines")(pool);
-  
+const patientRoutes = require("./routes/patient/patients")(pool);
+const userRoutes = require("./routes/users")(pool);
+const printerRoutes = require("./routes/printer")(pool);
+const reportsRoutes = require("./routes/reports")(pool);
+const prtportRoutes = require("./routes/prtport")(pool);
+const notiRoutes = require("./routes/noti/notifications")(pool);
+const settingsRoutes = require("./routes/settings")(pool);
+
+
 app.use("/medicine", medicineRoutes);
+app.use("/patient", patientRoutes);
+app.use("/user", userRoutes);
+app.use("/reports", reportsRoutes);
+app.use("/printer", printerRoutes);
+app.use("/prtport", prtportRoutes);
+app.use("/noti", notiRoutes.router);
+app.use("/settings", settingsRoutes);
+
+notiRoutes.setupWebSocket(server);
+
 
 server.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on http://localhost:${port} at ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}`);

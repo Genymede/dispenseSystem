@@ -267,46 +267,36 @@ module.exports = (pool) => {
   
   // เรียกใช้ sub-modules
   // ต้องส่ง pool เข้าไปในทุก sub-module ด้วย
-  // const medUsageRouter = require("./medUsage")(pool);
-  // const radRouter = require("./rad")(pool);
-  // const overdueRouter = require("./overdue")(pool);
-  // const allergyRouter = require("./allergy")(pool);
-  // const orderHistoryRouter = require("./orderHistory")(pool);
-  // const stockHistoryRouter = require("./stockHistory")(pool);
-  // const interactionsRouter = require("./interactions")(pool);
-  // const problemRouter = require("./problem")(pool);
-  // const medCutOff = require("./medCutOff")(pool);
-  // const medError = require("./medError")(pool);
-  // const medRequestRouter = require("./medRequest")(pool);
-  // const subwarehouseRouter = require("./subwarehouse")(pool);
+  const medUsageRouter = require("./medUsage")(pool);
+  const radRouter = require("./rad")(pool);
+  const overdueRouter = require("./overdue")(pool);
+  const allergyRouter = require("./allergy")(pool);
+  const orderHistoryRouter = require("./orderHistory")(pool);
+  const stockHistoryRouter = require("./stockHistory")(pool);
+  const interactionsRouter = require("./interactions")(pool);
+  const problemRouter = require("./problem")(pool);
+  const medCutOff = require("./medCutOff")(pool);
+  const medError = require("./medError")(pool);
+  const medRequestRouter = require("./medRequest")(pool);
+  const subwarehouseRouter = require("./subwarehouse")(pool);
+  const expireMedRouter = require("./expireMed")(pool);
   
   // รวม router ย่อย
-  // router.use(medUsageRouter);
-  // router.use(radRouter);
-  // router.use(overdueRouter);
-  // router.use(allergyRouter);
-  // router.use(orderHistoryRouter);
-  // router.use(stockHistoryRouter);
-  // router.use(interactionsRouter);
-  // router.use(problemRouter);
-  // router.use(medCutOff);
-  // router.use(medError);
-  // router.use(medRequestRouter);
-  // router.use(subwarehouseRouter);
+  router.use(medUsageRouter);
+  router.use(radRouter);
+  router.use(overdueRouter);
+  router.use(allergyRouter);
+  router.use(orderHistoryRouter);
+  router.use(stockHistoryRouter);
+  router.use(interactionsRouter);
+  router.use(problemRouter);
+  router.use(medCutOff);
+  router.use(medError);
+  router.use(medRequestRouter);
+  router.use(subwarehouseRouter);
+  router.use(expireMedRouter);
+
   
-  // เรียกดูข้อมูลยาตาม ID
-  router.get("/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const result = await pool.query("SELECT * FROM med.med_table WHERE med_id = $1", [id]); // แก้ไขตรงนี้
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: "Medicine not found" });
-      }
-      res.json(result.rows[0]);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
   
   // อัปเดตข้อมูลยา
   router.put("/:id", async (req, res) => {
@@ -475,6 +465,20 @@ module.exports = (pool) => {
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ error: "ayyyyyyyyyyyy" + err.message });
+    }
+  });
+
+  // เรียกดูข้อมูลยาตาม ID
+  router.get("/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const result = await pool.query("SELECT * FROM med.med_table WHERE med_id = $1", [id]); // แก้ไขตรงนี้
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Medicine not found" });
+      }
+      res.json(result.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
   });
   
