@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --watch server.js"
+    "start": "node server.js",
+    "postinstall": "npm rebuild bcrypt --build-from-source || true"
   },
   "engines": { "node": ">=18" },
   "keywords": [],
