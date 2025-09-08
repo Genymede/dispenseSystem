@@ -90,5 +90,26 @@ module.exports = (pool) => {
     }
   });
 
+  router.delete("/med_usage/:id", async (req, res) => {
+    // ดึงค่า id จาก parameters ของ URL
+    const { id } = req.params;
+    
+    try {
+        const result = await pool.query(
+            `DELETE FROM med.med_usage WHERE usage_id = $1 RETURNING *`,
+            [id]
+        );
+        if (result.rowCount > 0) {
+            res.json(result.rows[0]);
+        } else {
+            res.status(404).send("Medicine usage with the specified ID not found.");
+        }
+    }
+    catch (err) {
+        console.error('Error deleting medicine usage:', err.message);
+        res.status(500).send("An error occurred while deleting the medicine usage.");
+    }
+});
+
   return router;
 };

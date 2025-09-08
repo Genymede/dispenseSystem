@@ -179,6 +179,7 @@ module.exports = (pool) => {
         RETURNING *`,
         [med_id, quantity, unit, requested_by, status, note, is_approve, origin, med_sid]
       );
+      console.log("request success")
       res.status(201).json(result.rows[0]);
     } catch (err) {
       console.error("Error inserting med request:", err);

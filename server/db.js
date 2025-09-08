@@ -21,26 +21,50 @@
 // module.exports = pool;
 
 
+// const { Pool } = require("pg");
+
+// const pool = new Pool({
+//   connectionString: process.env.DB_URL, // ใช้ connection string จาก .env
+//   ssl: {
+//     rejectUnauthorized: false, // อนุญาตให้เชื่อมต่อโดยไม่ตรวจสอบใบรับรอง SSL (สำหรับ Neon DB)
+//   },
+// });
+
+// // ทดสอบการเชื่อมต่อ
+// pool.connect()
+//   .then(client => {
+//     console.log("Database connected successfully!");
+//     client.release();
+//   })
+//   .catch(err => {
+//     console.error("Failed to connect to database:", err.message);
+//     process.exit(1);
+//   });
+
+
+
+// module.exports = pool;
+
+// db.js
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  connectionString: process.env.DB_URL, // ใช้ connection string จาก .env
+  connectionString: process.env.DATABASE_URL, // เปลี่ยนไปใช้ DATABASE_URL แทน
   ssl: {
-    rejectUnauthorized: false, // อนุญาตให้เชื่อมต่อโดยไม่ตรวจสอบใบรับรอง SSL (สำหรับ Neon DB)
+    rejectUnauthorized: false,
   },
 });
 
-// ทดสอบการเชื่อมต่อ
 pool.connect()
   .then(client => {
     console.log("Database connected successfully!");
+    // ตั้งค่า search_path สำหรับ Railway ที่นี่
+    client.query('SET search_path TO "med", public;');
     client.release();
   })
   .catch(err => {
-    console.error("Failed to connect to database:", err.message);
+    console.error("❌ Failed to connect to database:", err.message);
     process.exit(1);
   });
-
-
 
 module.exports = pool;

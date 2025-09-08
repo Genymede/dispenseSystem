@@ -52,17 +52,19 @@ module.exports = (pool) => {
   router.post("/orderHistory", async (req, res) => {
     const { patient_id, dispense_doc_id, doctor_id, description, medicines } = req.body;
 
+    console.log("res order history",patient_id, dispense_doc_id, doctor_id, description, medicines)
+
     if (!medicines || medicines.length === 0) {
       return res.status(400).json({ error: "ไม่มีรายการยา" });
     }
 
     try {
       const query = `
-        INSERT INTO med.med_order_history (time, patient_id, dispense_doc_id, doctor_id, description, medicines)
-        VALUES (NOW(), $1, $2, $3, $4, $5) RETURNING *`;
+        INSERT INTO med.med_order_history (time, patient_id, dispense_doc_id, doctor_id, description, medicines, created_at, updated_at)
+        VALUES (NOW(), $1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *`;
       const values = [patient_id, dispense_doc_id, doctor_id, description, JSON.stringify(medicines)];
       const result = await pool.query(query, values);
-
+      
       res.json({ success: true, inserted: result.rows[0] });
     } catch (err) {
       console.error("Database error:", err);

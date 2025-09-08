@@ -239,11 +239,13 @@ const express = require("express");
 const { URL } = require("url");
 const cors = require("cors");
 
+
 // เปลี่ยน module.exports ให้เป็นฟังก์ชันที่รับ 'pool'
 module.exports = (pool) => {
   const router = express.Router();
   
-  // Middleware สำหรับ CORS
+  
+// Middleware for CORS
   router.use(cors({
     origin: (origin, callback) => {
       // อนุญาตคำขอที่ไม่มี origin (เช่น คำขอจาก Postman)
@@ -251,7 +253,7 @@ module.exports = (pool) => {
       // ใช้ URL API เพื่อ parse origin และตรวจสอบพอร์ต
       try {
         const url = new URL(origin);
-        if (url.port === '3000') {
+        if (url.port == '3000') {
           callback(null, true); // อนุญาต
         } else {
           callback(new Error('ไม่อนุญาตโดย CORS')); // ไม่อนุญาต
@@ -261,8 +263,8 @@ module.exports = (pool) => {
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type'], // อนุญาต Content-Type ซึ่งจำเป็นสำหรับคำขอ POST และ PATCH
+    methods: ['GET', 'POST', 'PATCH','PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"], // อนุญาต Content-Type ซึ่งจำเป็นสำหรับคำขอ POST และ PATCH
   }));
   
   // เรียกใช้ sub-modules

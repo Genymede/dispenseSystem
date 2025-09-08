@@ -97,6 +97,7 @@ module.exports = (pool) => {
   });
 
   router.put("/overdue/:id", async (req, res) => {
+    console.log("overdue update")
     const { id } = req.params;
     const { status } = req.body;
     try {

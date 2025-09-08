@@ -56,12 +56,14 @@ module.exports = (pool) => {
   router.get('/:table', async (req, res) => {
     const table = req.params.table;
 
+    console.log("reports/",table)
+
     if (!allowedTables.includes(table)) {
       return res.status(400).json({ error: 'ไม่อนุญาตให้เข้าถึงตารางนี้' });
     }
 
     try {
-      console.log(`Received GET request for table ${table} at ${new DateA.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}`);
+      console.log(`Received GET request for table ${table} at ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}`);
       const result = await pool.query(`SELECT * FROM med.${table}`);
       res.status(200).json(result.rows);
     } catch (err) {
