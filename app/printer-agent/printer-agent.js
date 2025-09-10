@@ -13,7 +13,7 @@ app.use(cors({
       'http://localhost:3000',
       'http://localhost:5173',
       'https://dispensesystem-production.up.railway.app',
-      'https://dispense-system.vercel.app/'
+      'https://dispense-system.vercel.app'
     ];
     if (!origin || allowed.includes(origin)) return cb(null, true);
     cb(new Error('Not allowed by CORS'));
