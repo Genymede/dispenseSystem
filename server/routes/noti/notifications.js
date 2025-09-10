@@ -456,30 +456,32 @@ const cors = require('cors');
 const { Server } = require('ws');
 const jwt = require('jsonwebtoken');
 
-const router = express.Router();
 
-// CORS configuration for the router
-router.use(cors({
+
+module.exports = (pool) => {
+  const router = express.Router();
+
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://dispensesystem-production.up.railway.app' // ถ้าอยากอนุญาตโปรดักชันด้วย
+  ];
+  // CORS configuration for the router
+  router.use(cors({
     origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        try {
-            const url = new URL(origin);
-            if (['3000', '3001'].includes(url.port)) {
-                callback(null, true);
-            } else {
-                callback(null, false);
-            }
-        } catch (e) {
-            callback(null, false);
-        }
+      // ไม่มี origin (เช่น curl หรือ Postman) -> allow
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-router.use(express.json());
-
-module.exports = (pool) => {
+  }));
+  router.use(express.json());
   // =========================================================
   // User Data Initialization
   // =========================================================

@@ -244,28 +244,29 @@ const cors = require("cors");
 module.exports = (pool) => {
   const router = express.Router();
   
-  
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://dispensesystem-production.up.railway.app' // เพิ่ม origin ของ production ถ้าต้องใช้
+  ];
 // Middleware for CORS
   router.use(cors({
     origin: (origin, callback) => {
-      // อนุญาตคำขอที่ไม่มี origin (เช่น คำขอจาก Postman)
+      // อนุญาตคำขอที่ไม่มี origin (เช่น Postman, curl)
       if (!origin) return callback(null, true);
-      // ใช้ URL API เพื่อ parse origin และตรวจสอบพอร์ต
-      try {
-        const url = new URL(origin);
-        if (url.port == '3000') {
-          callback(null, true); // อนุญาต
-        } else {
-          callback(new Error('ไม่อนุญาตโดย CORS')); // ไม่อนุญาต
-        }
-      } catch (e) {
-        callback(new Error('ไม่อนุญาตโดย CORS')); // ไม่อนุญาตหาก URL ไม่ถูกต้อง
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
+      return callback(new Error('ไม่อนุญาตโดย CORS'));
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PATCH','PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"], // อนุญาต Content-Type ซึ่งจำเป็นสำหรับคำขอ POST และ PATCH
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
   }));
+
+  // สำคัญ: handle preflight
+  router.options('*', cors());
   
   // เรียกใช้ sub-modules
   // ต้องส่ง pool เข้าไปในทุก sub-module ด้วย

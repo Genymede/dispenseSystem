@@ -93,7 +93,22 @@ const { execFile } = require("child_process");
 
 module.exports = () => {
   const router = express.Router();
-  router.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
+  const allowed = [
+  'http://localhost:3000',    // Next/Vite dev
+  'http://localhost:5173',
+  'https://dispensesystem-production.up.railway.app', // ถ้าต้องเรียกตัวเอง
+  // ใส่โดเมนจริงของ frontend เมื่อ deploy
+];
+  router.use(cors({
+    origin(origin, cb) {
+      if (!origin || allowed.includes(origin)) return cb(null, true);
+      cb(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization','Cache-Control'],
+  }));
   router.use(express.json());
 
   // TSPL ต้อง escape " เป็น "" (ไม่ใช่ \" )

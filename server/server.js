@@ -59,14 +59,27 @@ const port = 3001;
 // ลบโค้ดการเชื่อมต่อฐานข้อมูลและตั้งค่า search_path ออกจากไฟล์นี้
 // เนื่องจากกระบวนการนี้ได้ถูกย้ายไปจัดการใน db.js แล้ว
 
+const allowed = [
+  'http://localhost:3000',    // Next/Vite dev
+  'http://localhost:5173',
+  'https://dispensesystem-production.up.railway.app', // ถ้าต้องเรียกตัวเอง
+  // ใส่โดเมนจริงของ frontend เมื่อ deploy
+];
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"],
-  credentials: true
+  origin(origin, cb) {
+    if (!origin || allowed.includes(origin)) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','Cache-Control'],
 }));
+
+app.options('*', cors()); // เผื่อ preflight
 
 const server = http.createServer(app);
 
@@ -91,7 +104,6 @@ app.use("/noti", notiRoutes.router);
 app.use("/settings", settingsRoutes);
 
 notiRoutes.setupWebSocket(server);
-
 
 server.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on http://localhost:${port} at ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}`);
