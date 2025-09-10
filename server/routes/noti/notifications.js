@@ -465,7 +465,7 @@ module.exports = (pool) => {
     'http://localhost:3000',
     'http://localhost:3001',
     'https://dispensesystem-production.up.railway.app', // ถ้าอยากอนุญาตโปรดักชันด้วย
-    'https://dispense-system.vercel.app/'
+    'https://dispense-system.vercel.app'
   ];
   // CORS configuration for the router
   router.use(cors({

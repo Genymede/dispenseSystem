@@ -63,7 +63,7 @@ const allowed = [
   'http://localhost:3000',    // Next/Vite dev
   'http://localhost:5173',
   'https://dispensesystem-production.up.railway.app', // ถ้าต้องเรียกตัวเอง
-  'https://dispense-system.vercel.app/'
+  'https://dispense-system.vercel.app'
   // ใส่โดเมนจริงของ frontend เมื่อ deploy
 ];
 
