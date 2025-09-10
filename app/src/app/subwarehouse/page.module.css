@@ -1,0 +1,177 @@
+/* styles/table.css */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+.table thead {
+  position: sticky;
+  top: 0;
+  background-color: #8b8b8b;
+  z-index: 1;
+}
+
+.table th, .table td {
+    border: none;
+    padding: 8px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #8b8b8b;
+}
+
+.table tbody tr:nth-of-type(even) {
+    background-color: #e3e3e3;
+}
+
+.table td {
+    max-width: 10vh; /* กำหนดความกว้างสูงสุดของเซลล์ */
+    overflow: hidden;
+    text-overflow: ellipsis; /* แสดง '...' เมื่อข้อความยาวเกิน */
+    white-space: nowrap; /* ป้องกันการตัดบรรทัด */
+  }
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modalContent {
+    background: white;
+    padding:0px 5px;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal form {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  .modal input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+  }
+/*   
+  .modalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    width: 100%;
+  } */
+  
+  .modal button {
+    padding: 8px 16px;
+    margin: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .modal button[type="button"] {
+    background-color: #f44336;
+  }
+
+.add {
+    padding: 8px 16px;
+    margin:5px 0px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  flex: 1;
+  margin-bottom: 0.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="number"],
+.formGroup input[type="date"],
+.formGroup select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.formGroup input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.submitButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background-color: #f44336;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
