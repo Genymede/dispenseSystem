@@ -247,7 +247,8 @@ module.exports = (pool) => {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://dispensesystem-production.up.railway.app' // เพิ่ม origin ของ production ถ้าต้องใช้
+    'https://dispensesystem-production.up.railway.app', // เพิ่ม origin ของ production ถ้าต้องใช้
+    'https://dispense-system.vercel.app/'
   ];
 // Middleware for CORS
   router.use(cors({
