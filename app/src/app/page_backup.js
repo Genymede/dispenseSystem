@@ -15,7 +15,6 @@ import {
   CalendarDays,
   RotateCcw,
 } from "lucide-react";
-import styles from "./main.module.css";
 import { getPatients } from "@/app/api/patients";
 import { getMedicines, getMedicineById } from "@/app/api/medicines";
 import { createMedUsage } from "@/app/api/orders";

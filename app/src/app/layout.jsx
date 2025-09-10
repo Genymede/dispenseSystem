@@ -1,5 +1,4 @@
   // Sidebar Component
-  import "./globals.css";
   import SidebarWrapper from "./component/SidebarWrapper";
   import Navbar from "./component/Navbar";
 
