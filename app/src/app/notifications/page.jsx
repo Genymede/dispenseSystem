@@ -8,9 +8,17 @@ import Header from "../component/Header";
 import { FormatDateTime } from "../component/formatDate";
 
 const isClient = typeof window !== "undefined";
-const host = isClient ? window.location.hostname : "localhost";
-const API_BASE = `https://dispensesystem-production.up.railway.app/noti/notifications`;
-const WS_BASE = `ws://dispensesystem-production.up.railway.app/ws`;
+
+// ตั้ง API จาก ENV (แนะนำใส่ที่ Vercel: NEXT_PUBLIC_API_URL=https://dispensesystem-production.up.railway.app)
+const API_ORIGIN =
+  process.env.NEXT_PUBLIC_API_URL ?? (isClient ? `${location.origin}` : "http://localhost:3000");
+
+// แปลง http->ws, https->wss แล้วเติม path /ws
+const WS_ORIGIN = API_ORIGIN.replace(/^http(s?):\/\//, (_, s) => (s ? "wss://" : "ws://"));
+const WS_BASE = `${WS_ORIGIN}/ws`;
+
+const API_BASE = `${API_ORIGIN}/noti/notifications`;
+
 const TOKEN_KEY = "token";
 
 // ปรับช่วง polling ที่นี่ (ms)
@@ -115,6 +123,7 @@ const NotificationsPage = () => {
 
     const connectWebSocket = () => {
       const ws = new WebSocket(`${WS_BASE}?userId=${userId}&token=${token}`);
+
       wsRef.current = ws;
 
       ws.onopen = () => {
