@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState, useMemo } from "react";
 import Swal from "sweetalert2";
 import {
@@ -11,21 +12,21 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
-  Gauge,
   ChevronLeft,
   ChevronRight,
   Plus,
   X,
 } from "lucide-react";
 import Header from "@/app/component/Header";
-import { FormatDate, FormatDateTime } from "@/app/component/formatDate";
+import { FormatDateTime } from "@/app/component/formatDate";
 
 const isClient = typeof window !== "undefined";
 const host = isClient ? window.location.hostname : "localhost";
 
-async function getMedicationUsages() {
-  const res = await fetch(`https://dispensesystem-production.up.railway.app/medicine/med_usage`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to fetch medication usages");
+async function getMedicationProblems() {
+  const res = await fetch(`https://dispensesystem-production.up.railway.app/medicine/problems`, { cache: "no-store" });
+  //if (!res.ok) throw new Error("Failed to fetch medication problems");
+  console.log("res",res)
   return res.json();
 }
 
@@ -41,8 +42,8 @@ async function getPatients() {
   return res.json();
 }
 
-export default function MedUsage() {
-  const [usages, setUsages] = useState([]);
+export default function MedProblems() {
+  const [problems, setProblems] = useState([]);
   const [medicines, setMedicines] = useState([]);
   const [patients, setPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,22 +54,20 @@ export default function MedUsage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedUsage, setSelectedUsage] = useState(null);
+  const [selectedProblem, setSelectedProblem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchPatientInput, setSearchPatientInput] = useState("");
   const [searchMedicineInput, setSearchMedicineInput] = useState("");
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [filteredMedicines, setFilteredMedicines] = useState([]);
   const [form, setForm] = useState({
-    patient_id: "",
     med_id: "",
-    dosage: "",
-    frequency: "",
-    route: "",
-    start_datetime: "",
-    end_datetime: "",
-    usage_status: "",
-    notes: "",
+    description: "",
+    usage_id: "",
+    problem_type: "",
+    reported_by: "",
+    reported_at: "",
+    is_resolved: false,
   });
 
   useEffect(() => {
@@ -78,12 +77,12 @@ export default function MedUsage() {
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const [usageData, medicineData, patientData] = await Promise.all([
-        getMedicationUsages(),
+      const [problemData, medicineData, patientData] = await Promise.all([
+        getMedicationProblems(),
         getMedicines(),
         getPatients(),
       ]);
-      setUsages(Array.isArray(usageData) ? usageData : []);
+      setProblems(Array.isArray(problemData) ? problemData : []);
       setMedicines(Array.isArray(medicineData) ? medicineData : []);
       setPatients(Array.isArray(patientData) ? patientData : []);
     } catch (error) {
@@ -100,6 +99,11 @@ export default function MedUsage() {
     }
   };
 
+   useEffect(() => {
+  console.log("problem", problems);
+}, [problems]);
+
+
   const getPatientName = (id) => {
     const p = patients.find((pt) => pt.patient_id === id);
     return p ? `${p.first_name} ${p.last_name}` : "-";
@@ -109,8 +113,7 @@ export default function MedUsage() {
 
   const getPatientNationalId = (id) => {
     const patient = patients.find((pt) => pt.patient_id === id);
-    const nationalId = patient?.national_id || "-";
-    return nationalId
+    return patient?.national_id || "-";
   };
 
   const getMedName = (id) => medicines.find((m) => m.med_id === id)?.med_name || "-";
@@ -125,33 +128,20 @@ export default function MedUsage() {
       .split("T")[0];
   };
 
-  const getStatusDisplay = (status) => {
-    const statusMap = {
-      ongoing: {
-        text: "ใช้อยู่",
-        color: "bg-green-100 text-green-700",
-        dotColor: "bg-green-500",
-        icon: CheckCircle,
-      },
-      completed: {
-        text: "เสร็จสิ้น",
-        color: "bg-blue-100 text-blue-700",
-        dotColor: "bg-blue-500",
-        icon: CheckCircle,
-      },
-      stopped: {
-        text: "หยุด",
-        color: "bg-red-100 text-red-700",
-        dotColor: "bg-red-500",
-        icon: XCircle,
-      },
-    };
-    return statusMap[status] || {
-      text: "ไม่ระบุ",
-      color: "bg-gray-100 text-gray-600",
-      dotColor: "bg-gray-400",
-      icon: XCircle,
-    };
+  const getStatusDisplay = (isResolved) => {
+    return isResolved
+      ? {
+          text: "แก้ไขแล้ว",
+          color: "bg-green-100 text-green-700",
+          dotColor: "bg-green-500",
+          icon: CheckCircle,
+        }
+      : {
+          text: "ยังไม่แก้ไข",
+          color: "bg-red-100 text-red-700",
+          dotColor: "bg-red-500",
+          icon: XCircle,
+        };
   };
 
   const handleSearchPatient = (e) => {
@@ -185,23 +175,21 @@ export default function MedUsage() {
     setFilteredMedicines(filtered);
   };
 
-  const handleViewDetail = (usage) => {
-    setSelectedUsage(usage);
+  const handleViewDetail = (problem) => {
+    setSelectedProblem(problem);
     setShowDetailModal(true);
   };
 
   const handleAddNew = () => {
     setIsEditing(false);
     setForm({
-      patient_id: "",
       med_id: "",
-      dosage: "",
-      frequency: "",
-      route: "",
-      start_datetime: "",
-      end_datetime: "",
-      usage_status: "",
-      notes: "",
+      description: "",
+      usage_id: "",
+      problem_type: "",
+      reported_by: "",
+      reported_at: "",
+      is_resolved: false,
     });
     setSearchPatientInput("");
     setSearchMedicineInput("");
@@ -210,21 +198,19 @@ export default function MedUsage() {
     setShowEditModal(true);
   };
 
-  const handleEdit = (usage) => {
+  const handleEdit = (problem) => {
     setIsEditing(true);
-    setSelectedUsage(usage);
-    const patient = patients.find((p) => p.patient_id === usage.patient_id);
-    const medicine = medicines.find((m) => m.med_id === usage.med_id);
+    setSelectedProblem(problem);
+    const patient = patients.find((p) => p.patient_id === problem.reported_by);
+    const medicine = medicines.find((m) => m.med_id === problem.med_id);
     setForm({
-      patient_id: usage.patient_id || "",
-      med_id: usage.med_id || "",
-      dosage: usage.dosage || "",
-      frequency: usage.frequency || "",
-      route: usage.route || "",
-      start_datetime: usage.start_datetime ? getDateOnly(usage.start_datetime) : "",
-      end_datetime: usage.end_datetime ? getDateOnly(usage.end_datetime) : "",
-      usage_status: usage.usage_status || "",
-      notes: usage.notes || "",
+      med_id: problem.med_id || "",
+      description: problem.description || "",
+      usage_id: problem.usage_id || "",
+      problem_type: problem.problem_type || "",
+      reported_by: problem.reported_by || "",
+      reported_at: problem.reported_at ? getDateOnly(problem.reported_at) : "",
+      is_resolved: problem.is_resolved || false,
     });
     setSearchPatientInput(patient ? `${patient.first_name} ${patient.last_name}` : "");
     setSearchMedicineInput(medicine ? medicine.med_name : "");
@@ -233,11 +219,11 @@ export default function MedUsage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.patient_id || !form.med_id || !form.dosage || !form.frequency || !form.route || !form.start_datetime) {
+    if (!form.med_id || !form.description || !form.usage_id || !form.problem_type || !form.reported_by || !form.reported_at) {
       Swal.fire({
         icon: "error",
         title: "ข้อผิดพลาด",
-        text: "กรุณากรอกข้อมูลที่จำเป็นทั้งหมด (ผู้ป่วย, ยา, ขนาดยา, ความถี่, วิธีใช้, วันเริ่มใช้)",
+        text: "กรุณากรอกข้อมูลที่จำเป็นทั้งหมด (ยา, คำอธิบาย, รหัสการใช้ยา, ประเภทปัญหา, ผู้รายงาน, วันที่รายงาน)",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#d33",
       });
@@ -246,8 +232,8 @@ export default function MedUsage() {
 
     const method = isEditing ? "PUT" : "POST";
     const url = isEditing
-      ? `https://dispensesystem-production.up.railway.app/medicine/med_usage/${selectedUsage.usage_id}`
-      : `https://dispensesystem-production.up.railway.app/medicine/med_usage`;
+      ? `https://dispensesystem-production.up.railway.app/medicine/problems/${selectedProblem.mp_id}`
+      : `https://dispensesystem-production.up.railway.app/medicine/problems`;
 
     try {
       const res = await fetch(url, {
@@ -255,21 +241,21 @@ export default function MedUsage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          start_datetime: new Date(form.start_datetime).toISOString(),
-          end_datetime: form.end_datetime ? new Date(form.end_datetime).toISOString() : null,
+          reported_at: new Date(form.reported_at).toISOString(),
+          is_resolved: form.is_resolved,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
         const updated = isEditing
-          ? usages.map((u) => (u.usage_id === data.usage_id ? data : u))
-          : [...usages, data];
-        setUsages(updated);
+          ? problems.map((p) => (p.mp_id === data.mp_id ? data : p))
+          : [...problems, data];
+        setProblems(updated);
         Swal.fire({
           icon: "success",
           title: isEditing ? "แก้ไขสำเร็จ" : "เพิ่มสำเร็จ",
-          text: `ข้อมูลได้รับการ${isEditing ? "แก้ไข" : "เพิ่ม"}เรียบร้อย`,
+          text: `ข้อมูลปัญหาการใช้ยาได้รับการ${isEditing ? "แก้ไข" : "เพิ่ม"}เรียบร้อย`,
           confirmButtonText: "ตกลง",
           confirmButtonColor: "#28a745",
         });
@@ -285,7 +271,7 @@ export default function MedUsage() {
         });
       }
     } catch (error) {
-      console.error("Error saving usage:", error);
+      console.error("Error saving problem:", error);
       Swal.fire({
         icon: "error",
         title: "ข้อผิดพลาด",
@@ -296,11 +282,11 @@ export default function MedUsage() {
     }
   };
 
-  const handleDelete = async (usageId) => {
+  const handleDelete = async (mpId) => {
     const result = await Swal.fire({
       icon: "warning",
       title: "ยืนยันการลบ",
-      text: "คุณต้องการลบการใช้ยานี้หรือไม่?",
+      text: "คุณต้องการลบข้อมูลปัญหาการใช้ยานี้หรือไม่?",
       showCancelButton: true,
       confirmButtonText: "ลบ",
       cancelButtonText: "ยกเลิก",
@@ -311,7 +297,7 @@ export default function MedUsage() {
     if (!result.isConfirmed) return;
 
     try {
-      const res = await fetch(`https://dispensesystem-production.up.railway.app/medicine/med_usage/${usageId}`, {
+      const res = await fetch(`https://dispensesystem-production.up.railway.app/medicine/problems/${mpId}`, {
         method: "DELETE",
       });
 
@@ -323,7 +309,7 @@ export default function MedUsage() {
           confirmButtonText: "ตกลง",
           confirmButtonColor: "#28a745",
         });
-        setUsages(usages.filter((u) => u.usage_id !== usageId));
+        setProblems(problems.filter((p) => p.mp_id !== mpId));
       } else {
         const errorText = await res.text();
         Swal.fire({
@@ -335,7 +321,7 @@ export default function MedUsage() {
         });
       }
     } catch (error) {
-      console.error("Error deleting usage:", error);
+      console.error("Error deleting problem:", error);
       Swal.fire({
         icon: "error",
         title: "ข้อผิดพลาด",
@@ -349,16 +335,16 @@ export default function MedUsage() {
   const closeModal = () => {
     setShowDetailModal(false);
     setShowEditModal(false);
-    setSelectedUsage(null);
+    setSelectedProblem(null);
     setSearchPatientInput("");
     setSearchMedicineInput("");
     setFilteredPatients([]);
     setFilteredMedicines([]);
   };
 
-  const filteredUsages = useMemo(() => {
-    return usages.filter((item) => {
-      const patient = patients.find((pt) => pt.patient_id === item.patient_id);
+  const filteredProblems = useMemo(() => {
+    return problems.filter((item) => {
+      const patient = patients.find((pt) => pt.patient_id === item.reported_by);
       const medicine = medicines.find((m) => m.med_id === item.med_id);
       if (!patient || !medicine) return false;
 
@@ -368,7 +354,7 @@ export default function MedUsage() {
       const medName = (medicine.med_name || "").toLowerCase();
       const medThaiName = (medicine.med_thai_name || "").toLowerCase();
       const searchLower = searchTerm.toLowerCase();
-      const usageDate = item.start_datetime ? getDateOnly(item.start_datetime) : "";
+      const problemDate = item.reported_at ? getDateOnly(item.reported_at) : "";
 
       const matchesSearch =
         !searchTerm ||
@@ -376,20 +362,22 @@ export default function MedUsage() {
         hn.includes(searchLower) ||
         nationalId.includes(searchLower) ||
         medName.includes(searchLower) ||
-        medThaiName.includes(searchLower);
+        medThaiName.includes(searchLower) ||
+        item.description.toLowerCase().includes(searchLower) ||
+        item.problem_type.toLowerCase().includes(searchLower);
 
-      const matchesDate = !searchDate || usageDate === searchDate;
-      const matchesStatus = !selectedStatus || item.usage_status === selectedStatus;
+      const matchesDate = !searchDate || problemDate === searchDate;
+      const matchesStatus = selectedStatus === "" || item.is_resolved === (selectedStatus === "resolved");
 
       return matchesSearch && matchesDate && matchesStatus;
     });
-  }, [usages, patients, medicines, searchTerm, searchDate, selectedStatus]);
+  }, [problems, patients, medicines, searchTerm, searchDate, selectedStatus]);
 
-  const totalItems = filteredUsages.length;
+  const totalItems = filteredProblems.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredUsages.slice(startIndex, endIndex);
+  const currentItems = filteredProblems.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -426,7 +414,6 @@ export default function MedUsage() {
 
   const hasActiveFilters = searchTerm || searchDate || selectedStatus;
 
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -439,17 +426,15 @@ export default function MedUsage() {
   }
 
   return (
-    <div className=" mx-auto font-sarabun">
+    <div className="mx-auto font-sarabun">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
         <Header
-          header="ทะเบียนการใช้ยา"
-          description="จัดการและติดตามการใช้ยาของผู้ป่วย"
+          header="ทะเบียนปัญหาการใช้ยา"
+          description="จัดการและติดตามปัญหาการใช้ยาของผู้ป่วย"
           icon={ClipboardList}
         />
       </div>
-
-      
 
       {/* Filters Section */}
       <div className="my-4">
@@ -458,7 +443,7 @@ export default function MedUsage() {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               type="text"
-              placeholder="ค้นหาผู้ป่วยหรือยา (ชื่อ, HN, เลขบัตรประชาชน, ชื่อยา, ชื่อยาภาษาไทย)"
+              placeholder="ค้นหาผู้ป่วย, ยา, คำอธิบาย, หรือประเภทปัญหา"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-sm"
@@ -480,9 +465,8 @@ export default function MedUsage() {
               className="flex-1 pl-4 pr-8 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
             >
               <option value="">ทุกสถานะ</option>
-              <option value="ongoing">ใช้อยู่</option>
-              <option value="completed">เสร็จสิ้น</option>
-              <option value="stopped">หยุด</option>
+              <option value="resolved">แก้ไขแล้ว</option>
+              <option value="unresolved">ยังไม่แก้ไข</option>
             </select>
           </div>
           <div className="flex gap-2 col-span-1">
@@ -491,15 +475,15 @@ export default function MedUsage() {
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium"
             >
               <Plus className="h-4 w-4" />
-              เพิ่มการใช้ยา
+              เพิ่มปัญหาการใช้ยา
             </button>
-              <button
-                onClick={clearFilters}
-                className="flex items-center px-4 py-2 bg-red-200 text-red-800 rounded-xl hover:bg-red-300 transition-all duration-200 text-sm font-medium"
-              >
-                <RotateCcw className="h-4 w-4" />
-                <p>ล้างตัวกรอง</p>
-              </button>
+            <button
+              onClick={clearFilters}
+              className="flex items-center px-4 py-2 bg-red-200 text-red-800 rounded-xl hover:bg-red-300 transition-all duration-200 text-sm font-medium"
+            >
+              <RotateCcw className="h-4 w-4" />
+              <p>ล้างตัวกรอง</p>
+            </button>
           </div>
         </div>
       </div>
@@ -510,7 +494,7 @@ export default function MedUsage() {
           {currentItems.length === 0 ? (
             <div className="text-center py-12">
               <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg mb-2">ไม่พบรายการการใช้ยา</p>
+              <p className="text-gray-500 text-lg mb-2">ไม่พบรายการปัญหาการใช้ยา</p>
               <p className="text-gray-400">ลองปรับเปลี่ยนเงื่อนไขการค้นหา</p>
             </div>
           ) : (
@@ -531,14 +515,14 @@ export default function MedUsage() {
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b border-gray-200">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      วันเริ่มใช้
+                      <ClipboardList className="h-4 w-4 mr-2" />
+                      ประเภทปัญหา
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    <div className="flex items-center justify-center">
-                      <Gauge className="h-4 w-4 mr-2" />
-                      ขนาด/ความถี่
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b border-gray-200">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      วันที่รายงาน
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
@@ -557,12 +541,12 @@ export default function MedUsage() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentItems.map((item, index) => {
-                  const patient = patients.find((pt) => pt.patient_id === item.patient_id);
+                  const patient = patients.find((pt) => pt.patient_id === item.reported_by);
                   const medicine = medicines.find((m) => m.med_id === item.med_id);
-                  const statusInfo = getStatusDisplay(item.usage_status);
+                  const statusInfo = getStatusDisplay(item.is_resolved);
 
                   return (
-                    <tr key={item.usage_id} className="hover:bg-gray-50 transition-colors duration-200">
+                    <tr key={item.mp_id} className="hover:bg-gray-50 transition-colors duration-200">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <div className="bg-blue-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -572,9 +556,9 @@ export default function MedUsage() {
                             <div className="font-semibold text-gray-900">
                               {patient ? `${patient.first_name} ${patient.last_name}` : "-"}
                             </div>
-                            <div className="text-sm text-gray-500">HN: {getPatientHN(item.patient_id)}</div>
+                            <div className="text-sm text-gray-500">HN: {getPatientHN(item.reported_by)}</div>
                             <div className="text-xs text-gray-400">
-                              เลขบัตร: {getPatientNationalId(item.patient_id)}
+                              เลขบัตร: {getPatientNationalId(item.reported_by)}
                             </div>
                           </div>
                         </div>
@@ -589,16 +573,11 @@ export default function MedUsage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">
-                          <FormatDateTime dateString={item.start_datetime} />
-                        </div>
+                        <div className="text-sm text-gray-900">{item.problem_type || "-"}</div>
                       </td>
-                      <td className="px-6 py-4 text-center">
-                        <div>
-                          <div className="text-sm font-semibold text-gray-900">{item.dosage || "-"}</div>
-                          <div className="text-xs text-gray-500">
-                            {item.frequency || "-"} • {item.route || "-"}
-                          </div>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900">
+                          <FormatDateTime dateString={item.reported_at} />
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -627,7 +606,7 @@ export default function MedUsage() {
                           </button>
                           <button
                             className="flex items-center gap-1 px-3 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg text-xs font-medium transition-colors"
-                            onClick={() => handleDelete(item.usage_id)}
+                            onClick={() => handleDelete(item.mp_id)}
                             aria-label="ลบ"
                           >
                             <XCircle size={14} />
@@ -683,7 +662,7 @@ export default function MedUsage() {
       </div>
 
       {/* Detail Modal */}
-      {showDetailModal && selectedUsage && (
+      {showDetailModal && selectedProblem && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3">
@@ -693,8 +672,8 @@ export default function MedUsage() {
                     <ClipboardList className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white">รายละเอียดการใช้ยา</h2>
-                    <p className="text-blue-100 text-sm">รหัสการใช้ยา: {selectedUsage.usage_id || "-"}</p>
+                    <h2 className="text-xl font-bold text-white">รายละเอียดปัญหาการใช้ยา</h2>
+                    <p className="text-blue-100 text-sm">รหัสปัญหา: {selectedProblem.mp_id || "-"}</p>
                   </div>
                 </div>
                 <button
@@ -714,12 +693,12 @@ export default function MedUsage() {
                   </h3>
                   <div className="space-y-3">
                     {[
-                      { label: "รหัสการใช้ยา", value: selectedUsage.usage_id || "-", key: "usage_id" },
-                      { label: "ผู้ป่วย", value: getPatientName(selectedUsage.patient_id), key: "patient_name" },
-                      { label: "HN", value: getPatientHN(selectedUsage.patient_id), key: "hn" },
-                      { label: "เลขบัตรประชาชน", value: getPatientNationalId(selectedUsage.patient_id), key: "national_id" },
-                      { label: "ยา", value: `${getMedName(selectedUsage.med_id)} (ID: ${selectedUsage.med_id || "-"})`, key: "med_name" },
-                      { label: "ชื่อยาภาษาไทย", value: getMedThaiName(selectedUsage.med_id), key: "med_thai_name" },
+                      { label: "รหัสปัญหา", value: selectedProblem.mp_id || "-", key: "mp_id" },
+                      { label: "ผู้รายงาน", value: getPatientName(selectedProblem.reported_by), key: "patient_name" },
+                      { label: "HN", value: getPatientHN(selectedProblem.reported_by), key: "hn" },
+                      { label: "เลขบัตรประชาชน", value: getPatientNationalId(selectedProblem.reported_by), key: "national_id" },
+                      { label: "ยา", value: `${getMedName(selectedProblem.med_id)} (ID: ${selectedProblem.med_id || "-"})`, key: "med_name" },
+                      { label: "ชื่อยาภาษาไทย", value: getMedThaiName(selectedProblem.med_id), key: "med_thai_name" },
                     ].map((item) => (
                       <div key={`basic-info-${item.key}`} className="flex justify-between py-2">
                         <span className="text-sm text-gray-600">{item.label}:</span>
@@ -731,15 +710,15 @@ export default function MedUsage() {
                 <div className="space-y-4 pl-6">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 border-b border-gray-200 pb-2">
                     <Pill className="h-5 w-5 text-blue-600" />
-                    ข้อมูลการใช้ยา
+                    ข้อมูลปัญหาการใช้ยา
                   </h3>
                   <div className="space-y-3">
                     <div className="rounded-xl p-4 border-2 border-blue-200">
                       <div className="flex items-center gap-2 text-center">
-                        <p className="text-sm text-gray-600 ">สถานะ</p>
+                        <p className="text-sm text-gray-600">สถานะ</p>
                         <div className="">
                           {(() => {
-                            const status = getStatusDisplay(selectedUsage.usage_status);
+                            const status = getStatusDisplay(selectedProblem.is_resolved);
                             const StatusIcon = status.icon;
                             return (
                               <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status.color}`}>
@@ -752,14 +731,12 @@ export default function MedUsage() {
                       </div>
                     </div>
                     {[
-                      { label: "วันเริ่มใช้", value: selectedUsage.start_datetime ? <FormatDateTime dateString={selectedUsage.start_datetime} /> : "-", key: "start_datetime" },
-                      { label: "วันสิ้นสุด", value: selectedUsage.end_datetime ? <FormatDateTime dateString={selectedUsage.end_datetime} /> : "-", key: "end_datetime" },
-                      { label: "ขนาดยา", value: selectedUsage.dosage || "-", key: "dosage" },
-                      { label: "ความถี่", value: selectedUsage.frequency || "-", key: "frequency" },
-                      { label: "วิธีใช้", value: selectedUsage.route || "-", key: "route" },
-                      { label: "หมายเหตุ", value: selectedUsage.notes || "-", key: "notes" },
+                      { label: "รหัสการใช้ยา", value: selectedProblem.usage_id || "-", key: "usage_id" },
+                      { label: "ประเภทปัญหา", value: selectedProblem.problem_type || "-", key: "problem_type" },
+                      { label: "คำอธิบาย", value: selectedProblem.description || "-", key: "description" },
+                      { label: "วันที่รายงาน", value: selectedProblem.reported_at ? <FormatDateTime dateString={selectedProblem.reported_at} /> : "-", key: "reported_at" },
                     ].map((item) => (
-                      <div key={`usage-info-${item.key}`} className="flex justify-between py-2">
+                      <div key={`problem-info-${item.key}`} className="flex justify-between py-2">
                         <span className="text-sm text-gray-600">{item.label}:</span>
                         <span className="font-medium text-gray-900">{item.value}</span>
                       </div>
@@ -792,10 +769,10 @@ export default function MedUsage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">
-                      {isEditing ? "แก้ไขการใช้ยา" : "เพิ่มการใช้ยาใหม่"}
+                      {isEditing ? "แก้ไขปัญหาการใช้ยา" : "เพิ่มปัญหาการใช้ยาใหม่"}
                     </h2>
                     <p className="text-blue-100 text-sm">
-                      {isEditing ? `รหัสการใช้ยา: ${selectedUsage?.usage_id || "-"}` : "กรอกข้อมูลเพื่อเพิ่มการใช้ยาใหม่"}
+                      {isEditing ? `รหัสปัญหา: ${selectedProblem?.mp_id || "-"}` : "กรอกข้อมูลเพื่อเพิ่มปัญหาการใช้ยาใหม่"}
                     </p>
                   </div>
                 </div>
@@ -818,7 +795,7 @@ export default function MedUsage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        ผู้ป่วย <span className="text-red-500">*</span>
+                        ผู้รายงาน <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -836,7 +813,7 @@ export default function MedUsage() {
                                 key={p.patient_id}
                                 className="cursor-pointer hover:bg-gray-100 p-3 border-b border-gray-100 last:border-b-0 text-sm"
                                 onClick={() => {
-                                  setForm({ ...form, patient_id: p.patient_id });
+                                  setForm({ ...form, reported_by: p.patient_id });
                                   setSearchPatientInput(`${p.first_name} ${p.last_name}`);
                                   setFilteredPatients([]);
                                 }}
@@ -880,97 +857,78 @@ export default function MedUsage() {
                         )}
                       </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 border-b border-gray-200 pb-2">
-                      <Pill className="h-5 w-5 text-blue-600" />
-                      ข้อมูลการใช้ยา
-                    </h3>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        วันเริ่มใช้ <span className="text-red-500">*</span>
+                        รหัสการใช้ยา <span className="text-red-500">*</span>
                       </label>
                       <input
-                        type="date"
+                        type="text"
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        value={form.start_datetime}
-                        onChange={(e) => setForm({ ...form, start_datetime: e.target.value })}
+                        value={form.usage_id}
+                        onChange={(e) => setForm({ ...form, usage_id: e.target.value })}
+                        placeholder="เช่น 1"
                         required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">วันสิ้นสุด</label>
-                      <input
-                        type="date"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        value={form.end_datetime}
-                        onChange={(e) => setForm({ ...form, end_datetime: e.target.value })}
                       />
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 border-b border-gray-200 pb-2">
+                    <Pill className="h-5 w-5 text-blue-600" />
+                    ข้อมูลปัญหาการใช้ยา
+                  </h3>
                   <div className="space-y-4">
-                    
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        ขนาดยา <span className="text-red-500">*</span>
+                        ประเภทปัญหา <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        value={form.dosage}
-                        onChange={(e) => setForm({ ...form, dosage: e.target.value })}
-                        placeholder="เช่น 500 mg"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        ความถี่ <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        value={form.frequency}
-                        onChange={(e) => setForm({ ...form, frequency: e.target.value })}
-                        placeholder="เช่น วันละ 2 ครั้ง"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        วิธีใช้ <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        value={form.route}
-                        onChange={(e) => setForm({ ...form, route: e.target.value })}
-                        placeholder="เช่น รับประทาน"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
                       <select
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
-                        value={form.usage_status}
-                        onChange={(e) => setForm({ ...form, usage_status: e.target.value })}
+                        value={form.problem_type}
+                        onChange={(e) => setForm({ ...form, problem_type: e.target.value })}
+                        required
                       >
-                        <option value="">-- เลือก --</option>
-                        <option value="ongoing">ใช้อยู่</option>
-                        <option value="completed">เสร็จสิ้น</option>
-                        <option value="stopped">หยุด</option>
+                        <option value="">-- เลือกประเภทปัญหา --</option>
+                        <option value="ผื่นแพ้">ผื่นแพ้</option>
+                        <option value="คลื่นไส้">คลื่นไส้</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        คำอธิบาย <span className="text-red-500">*</span>
+                      </label>
                       <textarea
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         rows="4"
-                        value={form.notes}
-                        onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                        placeholder="เพิ่มหมายเหตุถ้ามี..."
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        placeholder="เช่น ผู้ป่วยมีผื่นคันบริเวณลำตัวหลังใช้ยา"
+                        required
                       />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        วันที่รายงาน <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        value={form.reported_at}
+                        onChange={(e) => setForm({ ...form, reported_at: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-200 rounded"
+                          checked={form.is_resolved}
+                          onChange={(e) => setForm({ ...form, is_resolved: e.target.checked })}
+                        />
+                        แก้ไขแล้ว
+                      </label>
                     </div>
                   </div>
                 </div>
