@@ -632,6 +632,7 @@ export default function Dispense() {
       
       for (const [index, med] of toPrint.entries()) {
         const printText = `(${index+1})\n${selectedPatient.first_name_eng} ${selectedPatient.last_name_eng}\n${med.med_showname_eng}\n${med.med_dose_dialogue}\nQuantity: ${med.quantity}\nPrice: ${(med.unit_price * med.quantity).toFixed(2)} THB`;
+        console.log(med)
         console.log(printText)
         try {
           if (!printer) {

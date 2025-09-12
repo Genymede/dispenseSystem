@@ -347,7 +347,7 @@ const Sidebar = () => {
   return (
     <div className={`${isCollapsed ? 'w-16' : 'w-72'} transition-all duration-200 ease-in-out`}>
       <aside className="sticky top-0 h-[91vh] bg-white rounded-r-xl shadow-xl flex flex-col font-prompt">
-        <nav className="flex-1 py-4 space-y-2 overflow-y-auto scrollbar-none">
+        <nav className="flex-1 py-4 space-y-2 overflow-y-auto overflow-x-hidden scrollbar-none">
           {/* Header and collapse button */}
           <div className="flex justify-between items-center px-4 border-b border-gray-200 mb-4 pb-4">
             <button
